@@ -59,8 +59,7 @@ title = title.replace(" ", "_")
 
 # Get Link to book from Google Books API
 bookLink = requests.get("https://www.googleapis.com/books/v1/volumes?q=" + title).json()["items"][0]["selfLink"]
-# Print bookLink
-print(bookLink)
+
 # Get title of the book
 title = requests.get(bookLink).json()["volumeInfo"]["title"]
 # Get author of the book
@@ -72,12 +71,17 @@ description = remove_tags(description)
 #Print title, author, and description of the book
 print(title, "\n", author)
 #Check if video project directory exists - if not, create it
+if(os.path.exists("./Projects/") == False):
+    os.mkdir("./Projects/")
 if(os.path.exists("./Projects/" + title) == False):
     os.mkdir("./Projects/" + title)
     os.mkdir("./Projects/" + title + "/images")
     os.mkdir("./Projects/" + title + "/processed")
 else:
     sys.exit("Project already exists. Please delete the project folder and try again.")
+if(os.path.exists("./Trailers/") == False):
+    os.mkdir("./Trailers/")
+
 #Sentence Array
 sentences = sentenceSplit(description)
 
@@ -142,7 +146,6 @@ for image in path_list:
     n = 10
     sentences[ind] = [' '.join(sentences[ind][i:i+n]) for i in range(0,len(sentences[ind]),n)]
     for chunk in sentences[ind]:
-        print(chunk)
         image_clip = ImageClip(image)
         text_clip = TextClip(txt=chunk,size=(.8*image_clip.size[0], 0),font="Calibri",color="black")
         text_clip = text_clip.set_position('center')
@@ -160,7 +163,6 @@ for image in path_list:
 for image in os.listdir(f'./Projects/{title}/processed'):
     clippy = f'./Projects/{title}/processed/{image}'
     img_clips.append(ImageClip(clippy, duration=3))
-    print(clippy)
 
 #End Screen
 end_screen = ImageClip('end_screen.png', duration=4)
@@ -191,9 +193,8 @@ else:
     video_slides = video_slides.subclip(0, duration)
     video_slides.write_videofile(f"./Projects/{title}/{title}.mp4", fps=24)
 
-    vidDesc = vidDesc + f"\n\n{metadata[music]}"
+    vidDesc = vidDesc + f"{metadata[music]}"
     with open(f'./Projects/{title}/description.txt', 'a') as f:
         f.write(vidDesc)
-    print(vidDesc)
     
-# print(metadata)
+print("Project created successfully!")
