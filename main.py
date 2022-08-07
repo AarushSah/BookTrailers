@@ -81,6 +81,8 @@ else:
     sys.exit("Project already exists. Please delete the project folder and try again.")
 if(os.path.exists("./Trailers/") == False):
     os.mkdir("./Trailers/")
+if(os.path.exists("./Trailers/" + title) == False):
+    os.mkdir("./Trailers/" + title)
 
 #Sentence Array
 sentences = sentenceSplit(description)
@@ -127,6 +129,10 @@ while(index<len(sentences)):
 while(len(remIndices) > 0):
     index = remIndices.pop(len(remIndices)-1)
     sentences.pop(index)
+
+cont = input("Would you like to  create the file? (y/n)\n")
+if(cont == "n"):
+    sys.exit()
 #Ask user for Music preference
 music = input(f"What music would you like to add? (Enter 'none' if you don't want to add music) \n{list(metadata.keys())}\n")
 
@@ -184,17 +190,17 @@ video_slides = concatenate_videoclips(img_clips, method="compose")
 
 #If user doesn't want to add music, just save the video
 if(music == "none"):
-    video_slides.write_videofile(f"./Projects/{title}/{title}.mp4", fps=24)
+    video_slides.write_videofile(f"./Trailers/{title}/{title}.mp4", fps=24)
 # else, add music to the video
 else:
     duration = video_slides.duration
     video_slides.audio = AudioFileClip(f"./MusicLibrary/{music}.mp3")
 
     video_slides = video_slides.subclip(0, duration)
-    video_slides.write_videofile(f"./Projects/{title}/{title}.mp4", fps=24)
+    video_slides.write_videofile(f"./Trailers/{title}/{title}.mp4", fps=24)
 
     vidDesc = vidDesc + f"{metadata[music]}"
-    with open(f'./Projects/{title}/description.txt', 'a') as f:
+    with open(f'./Trailers/{title}/description.txt', 'a') as f:
         f.write(vidDesc)
     
 print("Project created successfully!")
