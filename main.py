@@ -104,9 +104,13 @@ def requestImgURL(query):
 def writeQuery(query, index):
     try:
         url = requestImgURL(query)
+        if index < 10:
+            ind = "0" + str(index)
+        else:
+            ind = str(index)
         if url != None:
             response = requests.get(url)
-            open(f"./Projects/{title}/images/{title}{index}.jpg", 'wb').write(response.content)
+            open(f"./Projects/{title}/images/{title}{ind}.jpg", 'wb').write(response.content)
     except:
         print("Error")
 
@@ -147,7 +151,7 @@ for image in os.listdir(f'./Projects/{title}/images'):
 
 ind = 0
 ind2 = 0
-for image in path_list:
+for image in sorted(path_list):
     sentences[ind] = sentences[ind].split()
     n = 10
     sentences[ind] = [' '.join(sentences[ind][i:i+n]) for i in range(0,len(sentences[ind]),n)]
@@ -161,7 +165,11 @@ for image in path_list:
         clip_to_overlay = CompositeVideoClip([color_clip, text_clip])
         clip_to_overlay = clip_to_overlay.set_position('center')
         final_clip = CompositeVideoClip([image_clip, clip_to_overlay])
-        final_clip.save_frame(f"./Projects/{title}/processed/{title}{ind2+1}.png")
+        if(ind2 < 9):
+            ind3 = "0" + str(ind2 + 1)
+        else:
+            ind3 = str(ind2 + 1)
+        final_clip.save_frame(f"./Projects/{title}/processed/{title}{ind3}.png")
         ind2 += 1
     ind += 1
     
