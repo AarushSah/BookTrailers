@@ -42,5 +42,26 @@ https://creativecommons.org/licenses/by/3.0/deed.en_US''',
     "dramatic": '''Epic Cinematic Dramatic Music | Tragedy by Alex-Productions | https://www.youtube.com/channel/UCx0_M61F81Nfb-BRXE-SeVA
 Music promoted by https://www.free-stock-music.com
 Creative Commons Attribution 3.0 Unported License
-https://creativecommons.org/licenses/by/3.0/deed.en_US'''
+https://creativecommons.org/licenses/by/3.0/deed.en_US''',
+    "dreamy": '''How I Travel At Night by Enlia | https://enliamusic.com
+Music promoted by https://www.free-stock-music.com
+Creative Commons Attribution 3.0 Unported License
+https://creativecommons.org/licenses/by/3.0/deed.en_US''',
+    "driving": '''Paradox by | e s c p | https://escp-music.bandcamp.com
+Music promoted by https://www.free-stock-music.com
+Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/''',
+    "emotional": '''Under The Sun by Keys of Moon | https://soundcloud.com/keysofmoon
+Music promoted by https://www.free-stock-music.com
+Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/''',
+    "energetic": '''Aggressive Electro Cyberpunk Midtempo | Hidden by Alex-Productions | https://www.youtube.com/channel/UCx0_M61F81Nfb-BRXE-SeVA
+Music promoted by https://www.free-stock-music.com
+Creative Commons Attribution 3.0 Unported License
+https://creativecommons.org/licenses/by/3.0/deed.en_US''',
+    "epic": '''Juggernaut by Scott Buckley | https://soundcloud.com/scottbuckley
+Music promoted by https://www.free-stock-music.com
+Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/'''
+
 }
