@@ -3,11 +3,12 @@ from musicMetadata import metadata
 from moviepy.editor import *
 from pathlib import Path
 class Datum:
-    def __init__(self, title, author, sentences, music):
+    def __init__(self, title, author, sentences, music, realTitle):
         self.title = title
         self.author = author
         self.sentences = sentences
         self.music = music
+        self.realTitle = realTitle
 vidDesc = ""
 data = []
 
@@ -59,21 +60,19 @@ clientID = "zPfxC4pX5v3jRMt69bPp52UnVgtHt0xNyJqJWSxuh3E"
 while True:
     # Get the title of the book
     title = input("What is the title of the book?\n")
-    freshTitle = title
-    title = title.replace(" ", "_")
 
     # Get Link to book from Google Books API
     bookLink = requests.get("https://www.googleapis.com/books/v1/volumes?q=" + title).json()["items"][0]["selfLink"]
 
     # Get title of the book
-    title = requests.get(bookLink).json()["volumeInfo"]["title"]
+    realTitle = requests.get(bookLink).json()["volumeInfo"]["title"]
     # Get author of the book
     author = requests.get(bookLink).json()["volumeInfo"]["authors"][0]
     # Get the description of the book
     description = requests.get(bookLink).json()["volumeInfo"]["description"]
     # Remove HTML Tags
     description = remove_tags(description)
-    #Print title, author, and description of the book
+    #Print title and author of the book
     print(title, "\n", author)
     #Check if video project directory exists - if not, create it
     if(os.path.exists("./Projects/") == False):
@@ -144,7 +143,8 @@ while True:
     
     cont = input("Would you like to  create the file? (y/n)\n")
     if(cont == "y"):
-        data.append(Datum(title, author, sentences, music))
+        data.append(Datum(title, author, sentences, music, realTitle))
+        # FIXXXXXX
     cont = input("Would you like to add a trailer? (y/n)\n")
     if(cont == "n"):
         break
@@ -155,6 +155,7 @@ for datum in data:
     sentences = datum.sentences
     music = datum.music
     author = datum.author
+    realTitle = datum.realTitle
     img_clips = []
     path_list=[]
 
@@ -196,7 +197,7 @@ for datum in data:
     #End Screen
     end_screen = ImageClip('end_screen.png', duration=4)
     image_clip = end_screen
-    text_clip = TextClip(txt=f'{title} by {author}',size=(.8*image_clip.size[0], 0),font="Calibri",color="black")
+    text_clip = TextClip(txt=f'{realTitle} by {author}',size=(.8*image_clip.size[0], 0),font="Calibri",color="black")
     text_clip = text_clip.set_position('center')
     im_width, im_height = text_clip.size
     color_clip = ColorClip(size=(int(im_width*1.1), int(im_height*1.4)),color=(255, 255, 255))
