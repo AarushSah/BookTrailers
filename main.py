@@ -17,6 +17,19 @@ TAG_RE = re.compile(r'<[^>]+>')
 def remove_tags(text):
     return TAG_RE.sub(' ', text).replace('  ', ' ').replace('\n', ' ')
 
+# Remove all characters illegal in file names
+def cleanFileName(text):
+    text = text.replace("/", "")
+    text = text.replace("\\", "")
+    text = text.replace(":", "")
+    text = text.replace("*", "")
+    text = text.replace("?", "")
+    text = text.replace("\"", "")
+    text = text.replace("<", "")
+    text = text.replace(">", "")
+    text = text.replace("|", "")
+    return text
+
 # Split the text into sentences using REGEX
 alphabets= "([A-Za-z])"
 prefixes = "(Mr|St|Mrs|Ms|Dr)[.]"
@@ -66,6 +79,9 @@ while True:
 
     # Get title of the book
     realTitle = requests.get(bookLink).json()["volumeInfo"]["title"]
+
+    # Clean the title of the book
+    title = cleanFileName(realTitle)
     # Get author of the book
     author = requests.get(bookLink).json()["volumeInfo"]["authors"][0]
     # Get the description of the book
