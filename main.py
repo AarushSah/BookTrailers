@@ -175,7 +175,7 @@ for datum in data:
     img_clips = []
     path_list=[]
 
-
+    print(f"Processing {title} images...\n")
     #accessing path of each image and appending it to path_list
     for image in os.listdir(f'./Projects/{title}/images'):
         if image.endswith(".jpg"):
@@ -201,6 +201,12 @@ for datum in data:
                 ind3 = "0" + str(ind2 + 1)
             else:
                 ind3 = str(ind2 + 1)
+            # check if width is even, if not, add 1 to width
+            if(final_clip.size[0] % 2 != 0):
+                final_clip.size = (final_clip.size[0] + 1, final_clip.size[1])
+            # check if height is even, if not, add 1 to height
+            if(final_clip.size[1] % 2 != 0):
+                final_clip.size = (final_clip.size[0], final_clip.size[1] + 1)
             final_clip.save_frame(f"./Projects/{title}/processed/{title}{ind3}.png")
             ind2 += 1
         ind += 1
@@ -209,6 +215,9 @@ for datum in data:
     for image in os.listdir(f'./Projects/{title}/processed'):
         clippy = f'./Projects/{title}/processed/{image}'
         img_clips.append(ImageClip(clippy, duration=3))
+
+
+    print("Processing finished.\n Processing end screen...\n")
 
     #End Screen
     end_screen = ImageClip('end_screen.png', duration=4)
@@ -224,18 +233,25 @@ for datum in data:
     final_clip.save_frame(f"./Projects/{title}/processed/{title}{ind2+1}.png")
     img_clips.append(ImageClip(f"./Projects/{title}/processed/{title}{ind2+1}.png", duration=5))
 
+    print("Concatenating clips...\n")
+
     #concatenating slides
     video_slides = concatenate_videoclips(img_clips, method="compose")
 
+    print("Concatenating finished.\n")
 
     #If user doesn't want to add music, just save the video
+    print(f"Saving {title}...\n")
     if(music == "none"):
         video_slides.write_videofile(f"./Trailers/{title}/{title}.mp4", fps=24)
     # else, add music to the video
     else:
+        print(f"Adding {music} to {title}...\n")
         duration = video_slides.duration
         video_slides.audio = AudioFileClip(f"./MusicLibrary/{music}.mp3")
+        print("Adding finished.\n")
 
+        print(f"Saving {title}...\n")
         video_slides = video_slides.subclip(0, duration)
         video_slides.write_videofile(f"./Trailers/{title}/{title}.mp4", fps=24)
 
@@ -243,4 +259,4 @@ for datum in data:
         with open(f'./Trailers/{title}/description.txt', 'a') as f:
             f.write(vidDesc)
         
-    print("Project created successfully!")
+    print(f"{title} trailer created successfully!")
