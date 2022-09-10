@@ -2,6 +2,8 @@ import requests, json, random, os, re, math, sys
 from musicMetadata import metadata
 from moviepy.editor import *
 from pathlib import Path
+
+from prepForExport import finalProcess
 class Datum:
     def __init__(self, title, author, sentences, music, realTitle):
         self.title = title
@@ -9,7 +11,7 @@ class Datum:
         self.sentences = sentences
         self.music = music
         self.realTitle = realTitle
-vidDesc = ""
+musicCredits = ""
 data = []
 
 # Remove HTML Tags with REGEX
@@ -255,8 +257,7 @@ for datum in data:
         video_slides = video_slides.subclip(0, duration)
         video_slides.write_videofile(f"./Trailers/{title}/{title}.mp4", fps=24)
 
-        vidDesc = vidDesc + f"{metadata[music]}"
-        with open(f'./Trailers/{title}/description.txt', 'a') as f:
-            f.write(vidDesc)
+        musicCredits = metadata[music]
+        finalProcess(title, musicCredits, f"./Trailers/{title}/")
         
     print(f"{title} trailer created successfully!")
