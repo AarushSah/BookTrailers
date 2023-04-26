@@ -2,17 +2,45 @@ import requests, json, random, os, re, math, sys
 from musicMetadata import metadata
 from moviepy.editor import *
 from pathlib import Path
+# from prepForExport import finalProcess
+import imageio
 
-from prepForExport import finalProcess
+# input decorator that calls input. If user input is "exit", and if it is, exits the program
+def input(prompt):
+    userInput = __builtins__.input(prompt)
+    if userInput == "terminate":
+        print("Hard Exit Initiated. Would you like to exit? (y/n)")
+        if __builtins__.input("> ") == "y":
+            print("Continuing...")
+            sys.exit()
+        else:
+            input(prompt)
+    return userInput
+
+
 class Datum:
-    def __init__(self, title, author, sentences, music, realTitle):
+    def __init__(self, title, author, sentences, music, realTitle, imageList):
         self.title = title
         self.author = author
         self.sentences = sentences
         self.music = music
         self.realTitle = realTitle
+        self.imageList = imageList
 musicCredits = ""
 data = []
+
+# Get the image URL from Unsplash API
+def requestImgURL(query):
+    try:
+        ran = random.randint(0,9)
+        r = requests.get(f"https://api.unsplash.com/search/photos?query={query}&client_id={UNSPLASHKEY}&orientation=landscape")
+        if r.status_code == 200:
+            
+            return r.json()['results'][ran]['urls']['regular']
+        else:
+            return None
+    except:
+        return None
 
 # Remove HTML Tags with REGEX
 TAG_RE = re.compile(r'<[^>]+>')
@@ -71,11 +99,21 @@ def sentenceSplit(text):
     return sentences
 
 #Unsplash API Client ID
-clientID = "zPfxC4pX5v3jRMt69bPp52UnVgtHt0xNyJqJWSxuh3E"
+UNSPLASHKEY = "zPfxC4pX5v3jRMt69bPp52UnVgtHt0xNyJqJWSxuh3E"
+
 while True:
+
+    # Raw images    
+    preProcessedImages = []
+
     # Get the title of the book
     title = input("What is the title of the book?\n")
-
+    #if title == "exit" or title == "Exit" or title == "EXIT" or title == "e":
+    #    break
+    if requests.get("https://www.googleapis.com/books/v1/volumes?q=" + title).json()["totalItems"] == 0:
+        print("Book not found. Please try again.")
+        continue
+    
     # Get Link to book from Google Books API
     bookLink = requests.get("https://www.googleapis.com/books/v1/volumes?q=" + title).json()["items"][0]["selfLink"]
 
@@ -92,15 +130,6 @@ while True:
     description = remove_tags(description)
     #Print title and author of the book
     print(title, "\n", author)
-    #Check if video project directory exists - if not, create it
-    if(os.path.exists("./Projects/") == False):
-        os.mkdir("./Projects/")
-    if(os.path.exists("./Projects/" + title) == False):
-        os.mkdir("./Projects/" + title)
-        os.mkdir("./Projects/" + title + "/images")
-        os.mkdir("./Projects/" + title + "/processed")
-    else:
-        sys.exit("Project already exists. Please delete the project folder and try again.")
     if(os.path.exists("./Trailers/") == False):
         os.mkdir("./Trailers/")
     if(os.path.exists("./Trailers/" + title) == False):
@@ -108,19 +137,6 @@ while True:
 
     #Sentence Array
     sentences = sentenceSplit(description)
-
-    # Get the image URL from Unsplash API
-    def requestImgURL(query):
-        try:
-            ran = random.randint(0,9)
-            r = requests.get(f"https://api.unsplash.com/search/photos?query={query}&client_id={clientID}&orientation=landscape")
-            if r.status_code == 200:
-                
-                return r.json()['results'][ran]['urls']['regular']
-            else:
-                return None
-        except:
-            return None
 
     # Writes image to project directory
     def writeQuery(query, index):
@@ -131,10 +147,14 @@ while True:
             else:
                 ind = str(index)
             if url != None:
-                response = requests.get(url)
-                open(f"./Projects/{title}/images/{title}{ind}.jpg", 'wb').write(response.content)
+                # response = requests.get(url)
+                # open(f"./Projects/{title}/images/{title}.jpg", 'wb').write(response.content)
+                # print(response.text)
+                image = imageio.imread(url)
+                preProcessedImages.append(ImageClip(image))
+                
         except:
-            print("Error")
+            print("Error", sys.exc_info()[0], "occured.")
 
     # Queries Unsplash API for images using user inputted phrases
     imgCount = 1
@@ -161,7 +181,7 @@ while True:
     
     cont = input("Would you like to  create the file? (y/n)\n")
     if(cont == "y"):
-        data.append(Datum(title, author, sentences, music, realTitle))
+        data.append(Datum(title, author, sentences, music, realTitle, preProcessedImages))
         # FIXXXXXX
     cont = input("Would you like to add a trailer? (y/n)\n")
     if(cont == "n"):
@@ -175,22 +195,19 @@ for datum in data:
     author = datum.author
     realTitle = datum.realTitle
     img_clips = []
-    path_list=[]
+    preProcessedImages = datum.imageList
+    processedImages = []
+    print("PreProcessedImages: ", preProcessedImages)
 
     print(f"Processing {title} images...\n")
-    #accessing path of each image and appending it to path_list
-    for image in os.listdir(f'./Projects/{title}/images'):
-        if image.endswith(".jpg"):
-            path_list.append(os.path.join(f'./Projects/{title}/images', image))
 
     ind = 0
-    ind2 = 0
-    for image in sorted(path_list):
+    for image in preProcessedImages:
         sentences[ind] = sentences[ind].split()
         n = 10
         sentences[ind] = [' '.join(sentences[ind][i:i+n]) for i in range(0,len(sentences[ind]),n)]
         for chunk in sentences[ind]:
-            image_clip = ImageClip(image)
+            image_clip = image
             text_clip = TextClip(txt=chunk,size=(.8*image_clip.size[0], 0),font="Calibri",color="black")
             text_clip = text_clip.set_position('center')
             im_width, im_height = text_clip.size
@@ -199,30 +216,23 @@ for datum in data:
             clip_to_overlay = CompositeVideoClip([color_clip, text_clip])
             clip_to_overlay = clip_to_overlay.set_position('center')
             final_clip = CompositeVideoClip([image_clip, clip_to_overlay])
-            if(ind2 < 9):
-                ind3 = "0" + str(ind2 + 1)
-            else:
-                ind3 = str(ind2 + 1)
             # check if width is even, if not, add 1 to width
             if(final_clip.size[0] % 2 != 0):
                 final_clip.size = (final_clip.size[0] + 1, final_clip.size[1])
             # check if height is even, if not, add 1 to height
             if(final_clip.size[1] % 2 != 0):
                 final_clip.size = (final_clip.size[0], final_clip.size[1] + 1)
-            final_clip.save_frame(f"./Projects/{title}/processed/{title}{ind3}.png")
-            ind2 += 1
+            img_clips.append(final_clip.set_duration(3))
         ind += 1
         
 
-    for image in os.listdir(f'./Projects/{title}/processed'):
-        clippy = f'./Projects/{title}/processed/{image}'
-        img_clips.append(ImageClip(clippy, duration=3))
+
 
 
     print("Processing finished.\n Processing end screen...\n")
 
     #End Screen
-    end_screen = ImageClip('end_screen.png', duration=4)
+    end_screen = ImageClip('end_screen.png', duration=5)
     image_clip = end_screen
     text_clip = TextClip(txt=f'{realTitle} by {author}',size=(.8*image_clip.size[0], 0),font="Calibri",color="black")
     text_clip = text_clip.set_position('center')
@@ -232,8 +242,7 @@ for datum in data:
     clip_to_overlay = CompositeVideoClip([color_clip, text_clip])
     clip_to_overlay = clip_to_overlay.set_position('center')
     final_clip = CompositeVideoClip([image_clip, clip_to_overlay])
-    final_clip.save_frame(f"./Projects/{title}/processed/{title}{ind2+1}.png")
-    img_clips.append(ImageClip(f"./Projects/{title}/processed/{title}{ind2+1}.png", duration=5))
+    img_clips.append(final_clip.set_duration(5))
 
     print("Concatenating clips...\n")
 
@@ -258,6 +267,6 @@ for datum in data:
         video_slides.write_videofile(f"./Trailers/{title}/{title}.mp4", fps=24)
 
         musicCredits = metadata[music]
-        finalProcess(title, musicCredits, f"./Trailers/{title}/")
+        # finalProcess(title, musicCredits, f"./Trailers/{title}/")
         
-    print(f"{title} trailer created successfully!")
+    print(f"{title} trailer created successfully.\n")
