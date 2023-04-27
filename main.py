@@ -1,9 +1,75 @@
 import requests, json, random, os, re, math, sys
-from musicMetadata import metadata
 from moviepy.editor import *
 from pathlib import Path
-# from prepForExport import finalProcess
 import imageio
+
+metadata = {
+    "aggressive": '''Aggressive Gaming Sport by Alex-Productions | https://www.youtube.com/channel/UCx0_M61F81Nfb-BRXE-SeVA
+Music promoted by https://www.free-stock-music.com
+Creative Commons Attribution 3.0 Unported License
+https://creativecommons.org/licenses/by/3.0/deed.en_US''',
+    "adventurous": '''Dragonquest by Alexander Nakarada | https://www.serpentsoundstudios.com
+Music promoted by https://www.free-stock-music.com
+Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/''',
+    "action": '''Epic Cinematic Trailer | ELITE by Alex-Productions | https://www.youtube.com/channel/UCx0_M61F81Nfb-BRXE-SeVA
+Music promoted by https://www.free-stock-music.com
+Creative Commons Attribution 3.0 Unported License
+https://creativecommons.org/licenses/by/3.0/deed.en_US''',
+    "bizarre": '''Executioner by Alexander Nakarada | https://www.serpentsoundstudios.com
+Music promoted by https://www.free-stock-music.com
+Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/''',
+    "bouncy": '''Vibin’ 53 by Peyruis | https://soundcloud.com/peyruis
+Music promoted by https://www.free-stock-music.com
+Creative Commons Attribution 3.0 Unported License
+https://creativecommons.org/licenses/by/3.0/deed.en_US''',
+    "bright": '''Vibin’ 53 by Peyruis | https://soundcloud.com/peyruis
+Music promoted by https://www.free-stock-music.com
+Creative Commons Attribution 3.0 Unported License
+https://creativecommons.org/licenses/by/3.0/deed.en_US''',
+    "calm": '''Workation by Jay Someday | https://soundcloud.com/jaysomeday
+Music promoted by https://www.free-stock-music.com
+Creative Commons Attribution 3.0 Unported License
+https://creativecommons.org/licenses/by/3.0/deed.en_US''',
+    "cool": '''Kinetics by | e s c p | https://escp-music.bandcamp.com
+Music promoted by https://www.free-stock-music.com
+Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/''',
+    "criminal": '''He's Changing The Game by Darren-Curtis | https://soundcloud.com/desperate-measurez
+Music promoted by https://www.free-stock-music.com
+Creative Commons Attribution 3.0 Unported License
+https://creativecommons.org/licenses/by/3.0/deed.en_US''',
+    "dark": '''100 Seconds by Punch Deck | https://soundcloud.com/punch-deck
+Music promoted by https://www.free-stock-music.com
+Creative Commons Attribution 3.0 Unported License
+https://creativecommons.org/licenses/by/3.0/deed.en_US''',
+    "dramatic": '''Epic Cinematic Dramatic Music | Tragedy by Alex-Productions | https://www.youtube.com/channel/UCx0_M61F81Nfb-BRXE-SeVA
+Music promoted by https://www.free-stock-music.com
+Creative Commons Attribution 3.0 Unported License
+https://creativecommons.org/licenses/by/3.0/deed.en_US''',
+    "dreamy": '''How I Travel At Night by Enlia | https://enliamusic.com
+Music promoted by https://www.free-stock-music.com
+Creative Commons Attribution 3.0 Unported License
+https://creativecommons.org/licenses/by/3.0/deed.en_US''',
+    "driving": '''Paradox by | e s c p | https://escp-music.bandcamp.com
+Music promoted by https://www.free-stock-music.com
+Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/''',
+    "emotional": '''Under The Sun by Keys of Moon | https://soundcloud.com/keysofmoon
+Music promoted by https://www.free-stock-music.com
+Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/''',
+    "energetic": '''Aggressive Electro Cyberpunk Midtempo | Hidden by Alex-Productions | https://www.youtube.com/channel/UCx0_M61F81Nfb-BRXE-SeVA
+Music promoted by https://www.free-stock-music.com
+Creative Commons Attribution 3.0 Unported License
+https://creativecommons.org/licenses/by/3.0/deed.en_US''',
+    "epic": '''Juggernaut by Scott Buckley | https://soundcloud.com/scottbuckley
+Music promoted by https://www.free-stock-music.com
+Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/'''
+
+}
 
 # input decorator that calls input. If user input is "exit", and if it is, exits the program
 def input(prompt):
@@ -138,7 +204,7 @@ while True:
     #Sentence Array
     sentences = sentenceSplit(description)
 
-    # Writes image to project directory
+    # Writes image to preProcessedImages array
     def writeQuery(query, index):
         try:
             url = requestImgURL(query)
