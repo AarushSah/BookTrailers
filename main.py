@@ -274,7 +274,7 @@ for datum in data:
         sentences[ind] = [' '.join(sentences[ind][i:i+n]) for i in range(0,len(sentences[ind]),n)]
         for chunk in sentences[ind]:
             image_clip = image
-            text_clip = TextClip(txt=chunk,size=(.8*image_clip.size[0], 0),font="Calibri",color="black")
+            text_clip = TextClip(txt=chunk,fontsize=40,font="Calibri",color="black")
             text_clip = text_clip.set_position('center')
             im_width, im_height = text_clip.size
             color_clip = ColorClip(size=(int(im_width*1.1), int(im_height*1.4)),color=(255, 255, 255))
